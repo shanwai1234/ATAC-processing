@@ -9,7 +9,7 @@
 # awk 'BEGIN {OFS = "\t"} ; {if ($6 == "+") print $1, $2 + 4, $2 + 5; else print $1, $3 - 6, $3 - 5}' BN1A_uniq.rmdups.bed > BN1A_read.bed
 
 # 3. Determining coverage for limited window and filtering
-bedtools coverage -a test.windows0000.bed -b BN1A_read.tn5.bed | awk '{print $1,$2,$3,$4,('2.1e9'*$5)/('17724628'*($3-$2))}' OFS="\t" > test.windows0000.BN1A.relativetn5.coverage.test.bed
+bedtools coverage -a test.windows0000.bed -b BN1A_read.tn5.bed -counts | awk '{print $1,$2,$3,$4,('2.1e9'*$5)/('17724628'*($3-$2))}' OFS="\t" > test.windows0000.BN1A.relativetn5.coverage.test.bed
 awk '$NF>(25)' test.windows0000.BN1A.relativetn5.coverage.test.bed |bedtools sort -i - |bedtools merge -d 150 -i - |awk '$3-$2>'50'' > test.windows0000.BN1A.relativetn5.coverage.merge.bed
 
 # 4. download sequences of nucleotide of organelle from ncbi+ database
