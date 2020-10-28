@@ -28,6 +28,7 @@ awk '$NF>(25)' test.windows0000.BN1A.relativetn5.coverage.test.bed |bedtools sor
 
 # 8. Determining Tn5 integration site read depth
 # awk '{print $1"-"$2}' OFS="\t" BN1A_read.tn5.bed | uniq -c |sed "s/\ /\t/g" |awk '{print $NF,$(NF-1)}' OFS="\t" | awk '{print $1,('2.1e9'*$2)/'17724628'}' OFS="\t" > BN1A_read.tn5.tag.bed
+# sort -k1 BN1A_read.tn5.tag.bed | awk '{seen[$1]+=$2}END{for (i in seen) print i, seen[i]}' OFS="\t" |sed "s/-/\t/g" | sort -n -k2 > BN1A_read.tn5.tag.density.bed
 
 # 9. Using the most abundant Tn5 site as summit for peaks
 # python ~/scripts/ATAC-pipeline/overlap-ACR-summit.py BN1A_read.tn5.tag.density.bed test.windows0000.BN1A.relativetn5.coverage.merge.rmblack.bed > BN1A_Final_summit.bed
