@@ -1,0 +1,22 @@
+## Re-determining the summit of ATAC-peak in consideration of Tn5 integration frequency
+# 1. Run macs2 to call raw peaks
+# macs2 callpeak -t BN1A_uniq.rmdups.bed -c SRR7889831_uniq.rmdups.bed -g 2.1e9 --keep-dup all --nomodel --extsize 147 -n test
+
+# 2. download sequences of nucleotide of organelle from ncbi+ database
+# makeblastdb -in MP-All.fa -dbtype nucl -out MP
+
+# 3. Extracting sequences for new peak file
+# bedtools getfasta -fi ~/genomeinfo/genome-fasta/Zm-B73-REFERENCE-GRAMENE-4.0-noChr.fa -bed test.windows0000.BN1A.relativetn5.coverage.merge.bed -fo test.windows0000.BN1A.relativetn5.coverage.merge.fa
+
+# 4. Aligning with organelle database
+# blastn -query test.windows0000.BN1A.relativetn5.coverage.merge.fa -out BN1A-peak-organelle.fmt -db ~/genomeinfo/OrganelleGenome/MP -outfmt 7
+
+# 5. Removing organelle sequences for merged peak file
+# sed '/#/d' BN1A-peak-organelle.fmt | cut -f1 |sed "s/\:/\t/g" |sed "s/-/\t/g" |bedtools sort -i - | uniq > BN1A-peak-organelle.black
+# bedtools intersect -a test.windows0000.BN1A.relativetn5.coverage.merge.bed -b BN1A-peak-organelle.black -v |cut -f1-3 > test.windows0000.BN1A.relativetn5.coverage.merge.rmblack.bed
+
+# 6. Determining Tn5 integration site read depth
+# awk '{print $1"-"$2}' OFS="\t" BN1A_read.tn5.bed | uniq -c |sed "s/\ /\t/g" |awk '{print $NF,$(NF-1)}' OFS="\t" | awk '{print $1,('2.1e9'*$2)/'17724628'}' OFS="\t" > BN1A_read.tn5.tag.bed
+
+# 7. Using the most abundant Tn5 site as summit for peaks
+# python ~/scripts/ATAC-pipeline/overlap-ACR-summit.py BN1A_read.tn5.tag.density.bed test.windows0000.BN1A.relativetn5.coverage.merge.rmblack.bed > BN1A_Final_summit.bed
